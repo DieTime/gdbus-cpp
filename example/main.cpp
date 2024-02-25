@@ -1,5 +1,9 @@
-#include <gdbus-c++/gdbus-c++.hpp>
+/**
+* SPDX-FileCopyrightText: Copyright 2024 Denis Glazkov <glazzk.off@mail.ru>
+* SPDX-License-Identifier: Apache-2.0
+*/
 
+#include <gdbus-c++/gdbus-c++.hpp>
 #include <iostream>
 
 namespace org::example {

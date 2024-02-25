@@ -1,3 +1,8 @@
+/**
+* SPDX-FileCopyrightText: Copyright 2024 Denis Glazkov <glazzk.off@mail.ru>
+* SPDX-License-Identifier: Apache-2.0
+*/
+
 #include "object.hpp"
 #include "interface.hpp"
 #include "service.hpp"
