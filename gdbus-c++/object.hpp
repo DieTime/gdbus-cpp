@@ -26,6 +26,7 @@ public:
     object &with_interfaces(std::vector<std::shared_ptr<gdbus::interface>> &&interfaces) noexcept;
 
 private:
+    friend class gdbus::interface;
     const gdbus::service *service() const noexcept;
 
     friend class gdbus::service;
