@@ -13,11 +13,11 @@
 namespace {
 
 void process_method_call(GDBusConnection *,
-                         const char *sender,
-                         const char *object_path,
+                         const char *,
+                         const char *,
                          const char *interface_name,
-                         const char *method_name,
-                         GVariant *parameters,
+                         const char *,
+                         GVariant *,
                          GDBusMethodInvocation *invocation,
                          gpointer userdata)
 {
@@ -31,26 +31,26 @@ void process_method_call(GDBusConnection *,
     g_dbus_method_invocation_return_dbus_error(invocation, GDBUS_CPP_ERROR_NAME, "Unimplemented");
 }
 
-GVariant *process_get_property(GDBusConnection *connection,
-                               const gchar *sender,
-                               const gchar *object_path,
-                               const gchar *interface_name,
-                               const gchar *property_name,
+GVariant *process_get_property(GDBusConnection *,
+                               const char *,
+                               const char *,
+                               const char *,
+                               const char *,
                                GError **error,
-                               gpointer userdata)
+                               gpointer)
 {
     g_dbus_error_set_dbus_error(error, GDBUS_CPP_ERROR_NAME, "Unimplemented", nullptr);
     return nullptr;
 }
 
-gboolean process_set_property(GDBusConnection *connection,
-                              const gchar *sender,
-                              const gchar *object_path,
-                              const gchar *interface_name,
-                              const gchar *property_name,
-                              GVariant *value,
+gboolean process_set_property(GDBusConnection *,
+                              const char *,
+                              const char *,
+                              const char *,
+                              const char *,
+                              GVariant *,
                               GError **error,
-                              gpointer user_data)
+                              gpointer)
 {
     g_dbus_error_set_dbus_error(error, GDBUS_CPP_ERROR_NAME, "Unimplemented", nullptr);
     return FALSE;
@@ -190,7 +190,7 @@ void connection::register_object_interface(const std::shared_ptr<gdbus::interfac
     m_nodes.push_back(std::move(node));
 }
 
-void connection::on_dbus_name_lost(GDBusConnection *, const gchar *name, gpointer userdata)
+void connection::on_dbus_name_lost(GDBusConnection *, const char *name, gpointer userdata)
 {
     gdbus::connection *self = static_cast<gdbus::connection *>(userdata);
 
