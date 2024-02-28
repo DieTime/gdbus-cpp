@@ -9,8 +9,6 @@
 #include <stdexcept>
 #include <string>
 
-#include <gio/gio.h>
-
 namespace gdbus {
 
 class error: public std::exception
