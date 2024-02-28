@@ -67,13 +67,10 @@ const GDBusInterfaceVTable vtable = {
 
 namespace gdbus {
 
-gdbus::connection connection::for_bus_with_type(GBusType type)
+connection connection::for_bus_with_type(GBusType type)
 {
-    g_autoptr(GError) error = nullptr;
-    g_autoptr(GDBusConnection) connection = g_bus_get_sync(type, nullptr, &error);
-
-    g_autoptr(GMainContext) context = g_main_context_new();
-    g_autoptr(GMainLoop) mainloop = g_main_loop_new(context, false);
+    gdbus::pointer<GError> error;
+    gdbus::pointer<GDBusConnection> connection(g_bus_get_sync(type, nullptr, &error));
 
     if (!connection) {
         throw gdbus::error(GDBUS_CPP_ERROR_NAME,
@@ -82,20 +79,33 @@ gdbus::connection connection::for_bus_with_type(GBusType type)
                                           error));
     }
 
-    return {type,
-            g_steal_pointer(&connection),
-            g_steal_pointer(&context),
-            g_steal_pointer(&mainloop)};
+    gdbus::pointer<GMainContext> context(g_main_context_new());
+
+    if (!context) {
+        throw gdbus::error(GDBUS_CPP_ERROR_NAME,
+                           "Couldn't create main context for " + bus_type_to_string(type)
+                               + " bus connection");
+    }
+
+    gdbus::pointer<GMainLoop> mainloop(g_main_loop_new(context, false));
+
+    if (!mainloop) {
+        throw gdbus::error(GDBUS_CPP_ERROR_NAME,
+                           "Couldn't create main loop for " + bus_type_to_string(type)
+                               + " bus connection");
+    }
+
+    return {type, std::move(connection), std::move(context), std::move(mainloop)};
 }
 
 connection::connection(GBusType type,
-                       GDBusConnection *connection,
-                       GMainContext *context,
-                       GMainLoop *mainloop) noexcept
+                       gdbus::pointer<GDBusConnection> connection,
+                       gdbus::pointer<GMainContext> context,
+                       gdbus::pointer<GMainLoop> mainloop) noexcept
     : m_type(type)
-    , m_connection(connection)
-    , m_context(context)
-    , m_mainloop(mainloop)
+    , m_connection(std::move(connection))
+    , m_context(std::move(context))
+    , m_mainloop(std::move(mainloop))
     , m_name_registration(0)
 {
     g_main_context_push_thread_default(m_context);
@@ -103,24 +113,11 @@ connection::connection(GBusType type,
 
 connection::~connection()
 {
-    if (g_main_loop_is_running(m_mainloop)) {
-        g_main_loop_quit(m_mainloop);
+    for (const auto &object_registration: m_object_registrations) {
+        g_dbus_connection_unregister_object(m_connection, object_registration);
     }
-
-    for (const auto &registration: m_object_registrations) {
-        g_dbus_connection_unregister_object(m_connection, registration.id);
-        g_dbus_node_info_unref(registration.introspection);
-    }
-
-    if (m_name_registration) {
-        g_bus_unown_name(m_name_registration);
-    }
-
-    g_object_unref(m_connection);
-    g_main_loop_unref(m_mainloop);
 
     g_main_context_pop_thread_default(m_context);
-    g_main_context_unref(m_context);
 }
 
 void connection::register_name(const std::string &name)
@@ -162,12 +159,12 @@ void connection::register_object(const gdbus::object &object)
 
 void connection::register_object_interface(const std::shared_ptr<gdbus::interface> &interface)
 {
-    g_autoptr(GError) error = nullptr;
-    g_autoptr(GDBusNodeInfo) introspection = nullptr;
+    const std::string &introspection = interface->introspection();
 
-    introspection = g_dbus_node_info_new_for_xml(interface->introspection().c_str(), &error);
+    gdbus::pointer<GError> error;
+    gdbus::pointer<GDBusNodeInfo> node(g_dbus_node_info_new_for_xml(introspection.c_str(), &error));
 
-    if (!introspection) {
+    if (!node) {
         throw gdbus::error(GDBUS_CPP_ERROR_NAME,
                            append_g_error("Couldn't parse " + interface->name()
                                               + " interface introspection",
@@ -176,7 +173,7 @@ void connection::register_object_interface(const std::shared_ptr<gdbus::interfac
 
     guint id = g_dbus_connection_register_object(m_connection,
                                                  interface->object()->path().c_str(),
-                                                 introspection->interfaces[0],
+                                                 node->interfaces[0],
                                                  &vtable,
                                                  interface.get(),
                                                  nullptr,
@@ -189,7 +186,8 @@ void connection::register_object_interface(const std::shared_ptr<gdbus::interfac
                                           error));
     }
 
-    m_object_registrations.push_back({id, g_steal_pointer(&introspection)});
+    m_object_registrations.push_back(id);
+    m_nodes.push_back(std::move(node));
 }
 
 void connection::on_dbus_name_lost(GDBusConnection *, const gchar *name, gpointer userdata)
