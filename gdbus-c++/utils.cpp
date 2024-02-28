@@ -19,13 +19,13 @@ std::string bus_type_to_string(GBusType bus_type) noexcept
     }
 }
 
-std::string append_g_error(const std::string &message, GError *error) noexcept
+std::string append_g_error(const std::string &string, GError *error) noexcept
 {
     if (error) {
-        return message + " (" + error->message + ")";
+        return string + " (" + error->message + ")";
     }
 
-    return message;
+    return string;
 }
 
 } /* namespace gdbus */
