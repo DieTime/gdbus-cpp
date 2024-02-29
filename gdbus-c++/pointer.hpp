@@ -67,7 +67,8 @@ struct pointer
         : m_pointer(nullptr)
     {}
 
-    explicit pointer(T *pointer)
+    /* NOLINTNEXTLINE(google-explicit-constructor) */
+    pointer(T *pointer)
         : m_pointer(pointer)
     {}
 

@@ -70,7 +70,7 @@ namespace gdbus {
 connection connection::for_bus_with_type(GBusType type)
 {
     gdbus::pointer<GError> error;
-    gdbus::pointer<GDBusConnection> connection(g_bus_get_sync(type, nullptr, &error));
+    gdbus::pointer<GDBusConnection> connection = g_bus_get_sync(type, nullptr, &error);
 
     if (!connection) {
         throw gdbus::error(GDBUS_CPP_ERROR_NAME,
@@ -79,7 +79,7 @@ connection connection::for_bus_with_type(GBusType type)
                                           error));
     }
 
-    gdbus::pointer<GMainContext> context(g_main_context_new());
+    gdbus::pointer<GMainContext> context = g_main_context_new();
 
     if (!context) {
         throw gdbus::error(GDBUS_CPP_ERROR_NAME,
@@ -87,7 +87,7 @@ connection connection::for_bus_with_type(GBusType type)
                                + " bus connection");
     }
 
-    gdbus::pointer<GMainLoop> mainloop(g_main_loop_new(context, false));
+    gdbus::pointer<GMainLoop> mainloop = g_main_loop_new(context, false);
 
     if (!mainloop) {
         throw gdbus::error(GDBUS_CPP_ERROR_NAME,
@@ -162,7 +162,7 @@ void connection::register_object_interface(const std::shared_ptr<gdbus::interfac
     const std::string &introspection = interface->introspection();
 
     gdbus::pointer<GError> error;
-    gdbus::pointer<GDBusNodeInfo> node(g_dbus_node_info_new_for_xml(introspection.c_str(), &error));
+    gdbus::pointer<GDBusNodeInfo> node = g_dbus_node_info_new_for_xml(introspection.c_str(), &error);
 
     if (!node) {
         throw gdbus::error(GDBUS_CPP_ERROR_NAME,
