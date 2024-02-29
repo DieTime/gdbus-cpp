@@ -30,6 +30,14 @@ jobs:
     - name: Setup Ninja
       run: sudo apt-get install -qq -y ninja-build
 
+    - name: Setup GCC
+      if: ${{ matrix.cxx == 'g++' }}
+      run: sudo apt-get install -qq -y gcc
+
+    - name: Setup Clang
+      if: ${{ matrix.cxx == 'clang++' }}
+      run: sudo apt-get install -qq -y clang
+
     - name: Setup Meson
       run: python3 -m pip install meson
 
