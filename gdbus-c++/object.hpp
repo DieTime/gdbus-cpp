@@ -6,7 +6,6 @@
 #ifndef GDBUS_CPP_OBJECT_HPP
 #define GDBUS_CPP_OBJECT_HPP
 
-#include <functional>
 #include <memory>
 #include <string>
 #include <vector>

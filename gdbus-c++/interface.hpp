@@ -6,11 +6,8 @@
 #ifndef GDBUS_CPP_INTERFACE_HPP
 #define GDBUS_CPP_INTERFACE_HPP
 
-#include <functional>
 #include <memory>
 #include <string>
-
-#include <gio/gio.h>
 
 namespace gdbus {
 
