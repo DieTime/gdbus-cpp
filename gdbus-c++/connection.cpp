@@ -37,7 +37,7 @@ void on_dbus_name_lost(GDBusConnection *, const char *name, gpointer userdata)
     gdbus::connection *connection = static_cast<gdbus::connection *>(userdata);
 
     throw gdbus::error(GDBUS_CPP_ERROR_NAME,
-                       "Lost " + std::string(name) + " name on "
+                       "Lost '" + std::string(name) + "' name on "
                            + bus_type_to_string(connection->type()) + " bus connection");
 }
 
