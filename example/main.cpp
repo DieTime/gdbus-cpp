@@ -53,7 +53,7 @@ int main()
             })
             .start();
     } catch (const gdbus::error &error) {
-        std::cout << error.what() << "\n";
+        std::cout << error.message() << "\n";
         return EXIT_FAILURE;
     }
 
