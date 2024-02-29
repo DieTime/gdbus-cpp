@@ -15,6 +15,7 @@ jobs:
 
       matrix:
         flavor: [debug, debugoptimized, release]
+        library: [static, shared, both]
         cxx: [g++, clang++]
 
     steps:
@@ -49,7 +50,8 @@ jobs:
         CXX=${{ matrix.cxx }} meson setup builddir \
           --fatal-meson-warnings \
           --werror \
-          --buildtype ${{ matrix.flavor }}
+          --buildtype ${{ matrix.flavor }} \
+          --default-library ${{ matrix.library }}
 
     - name: Meson build
       run: meson compile -C builddir
