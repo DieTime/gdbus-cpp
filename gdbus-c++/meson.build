@@ -11,7 +11,6 @@ src = [
     'interface.cpp',
     'object.cpp',
     'service.cpp',
-    'utils.cpp',
 ]
 
 gdbus_cpp = shared_library('gdbus-c++', src, dependencies: deps)
