@@ -47,10 +47,6 @@ struct freer<GMainLoop>
 {
     void operator()(GMainLoop *mainloop)
     {
-        if (g_main_loop_is_running(mainloop)) {
-            g_main_loop_quit(mainloop);
-        }
-
         g_main_loop_unref(mainloop);
     }
 };
