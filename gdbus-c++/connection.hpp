@@ -23,7 +23,7 @@ public:
     static connection for_bus_with_type(GBusType type);
     ~connection();
 
-    GBusType type();
+    GBusType type() const noexcept;
 
     void register_name(const std::string &name);
     void register_objects(const std::vector<gdbus::object> &objects);

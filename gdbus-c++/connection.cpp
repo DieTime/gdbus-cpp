@@ -152,7 +152,7 @@ connection::~connection()
     g_main_context_pop_thread_default(m_context);
 }
 
-GBusType connection::type()
+GBusType connection::type() const noexcept
 {
     return m_type;
 }
