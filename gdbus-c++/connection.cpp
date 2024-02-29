@@ -128,6 +128,7 @@ connection::~connection()
         g_dbus_connection_unregister_object(m_connection, object_registration);
     }
 
+    g_bus_unown_name(m_name_registration);
     g_main_context_pop_thread_default(m_context);
 }
 
