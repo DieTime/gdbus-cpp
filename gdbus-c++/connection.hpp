@@ -26,6 +26,7 @@ public:
     void register_name(const std::string &name);
     void register_objects(const std::vector<gdbus::object> &objects);
     void start();
+    void stop();
 
 private:
     connection(GBusType type,

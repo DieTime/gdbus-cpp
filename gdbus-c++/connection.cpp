@@ -113,6 +113,8 @@ connection::connection(GBusType type,
 
 connection::~connection()
 {
+    stop();
+
     for (const auto &object_registration: m_object_registrations) {
         g_dbus_connection_unregister_object(m_connection, object_registration);
     }
@@ -148,6 +150,13 @@ void connection::register_objects(const std::vector<gdbus::object> &objects)
 void connection::start()
 {
     g_main_loop_run(m_mainloop);
+}
+
+void connection::stop()
+{
+    if (g_main_loop_is_running(m_mainloop)) {
+        g_main_loop_quit(m_mainloop);
+    }
 }
 
 void connection::register_object(const gdbus::object &object)
