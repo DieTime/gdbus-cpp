@@ -7,8 +7,9 @@
 
 namespace gdbus {
 
-error::error(std::string name, std::string message) noexcept
-    : m_name(std::move(name))
+error::error(std::string name, std::string message)
+    : std::runtime_error(name + ": " + message)
+    , m_name(std::move(name))
     , m_message(std::move(message))
 {}
 
@@ -20,11 +21,6 @@ const std::string &error::name() const noexcept
 const std::string &error::message() const noexcept
 {
     return m_message;
-}
-
-const char *error::what() const noexcept
-{
-    return m_message.c_str();
 }
 
 } /* namespace gdbus */

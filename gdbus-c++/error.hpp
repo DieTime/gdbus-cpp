@@ -7,19 +7,16 @@
 #define GDBUS_CPP_ERROR_HPP
 
 #include <stdexcept>
-#include <string>
 
 namespace gdbus {
 
-class error: public std::exception
+class error: public std::runtime_error
 {
 public:
-    error(std::string name, std::string message) noexcept;
+    error(std::string name, std::string message);
 
     const std::string &name() const noexcept;
     const std::string &message() const noexcept;
-
-    const char *what() const noexcept override;
 
 private:
     std::string m_name;
