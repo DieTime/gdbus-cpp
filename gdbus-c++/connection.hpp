@@ -23,6 +23,8 @@ public:
     static connection for_bus_with_type(GBusType type);
     ~connection();
 
+    GBusType type();
+
     void register_name(const std::string &name);
     void register_objects(const std::vector<gdbus::object> &objects);
     void start();
@@ -36,8 +38,6 @@ private:
 
     void register_object(const gdbus::object &object);
     void register_object_interface(const std::shared_ptr<gdbus::interface> &interface);
-
-    static void on_dbus_name_lost(GDBusConnection *, const gchar *name, gpointer userdata);
 
 private:
     GBusType m_type;

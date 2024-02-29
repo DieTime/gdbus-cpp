@@ -12,6 +12,15 @@
 
 namespace {
 
+void on_dbus_name_lost(GDBusConnection *, const char *name, gpointer userdata)
+{
+    gdbus::connection *connection = static_cast<gdbus::connection *>(userdata);
+
+    throw gdbus::error(GDBUS_CPP_ERROR_NAME,
+                       "Lost " + std::string(name) + " name on "
+                           + bus_type_to_string(connection->type()) + " bus connection");
+}
+
 void process_method_call(GDBusConnection *,
                          const char *,
                          const char *,
@@ -122,6 +131,11 @@ connection::~connection()
     g_main_context_pop_thread_default(m_context);
 }
 
+GBusType connection::type()
+{
+    return m_type;
+}
+
 void connection::register_name(const std::string &name)
 {
     guint name_registration = g_bus_own_name_on_connection(m_connection,
@@ -197,15 +211,6 @@ void connection::register_object_interface(const std::shared_ptr<gdbus::interfac
 
     m_object_registrations.push_back(id);
     m_nodes.push_back(std::move(node));
-}
-
-void connection::on_dbus_name_lost(GDBusConnection *, const char *name, gpointer userdata)
-{
-    gdbus::connection *self = static_cast<gdbus::connection *>(userdata);
-
-    throw gdbus::error(GDBUS_CPP_ERROR_NAME,
-                       "The name " + std::string(name) + " has been lost on "
-                           + bus_type_to_string(self->m_type) + " bus connection");
 }
 
 } /* namespace gdbus */
