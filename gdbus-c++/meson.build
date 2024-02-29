@@ -13,5 +13,19 @@ src = [
     'service.cpp',
 ]
 
-gdbus_cpp = shared_library('gdbus-c++', src, dependencies: deps)
-gdbus_cpp_dep = declare_dependency(link_with: gdbus_cpp, dependencies: deps, include_directories: ['..'])
+args = []
+
+if GDBUS_CPP_BUILD_SHARED_LIBRARY
+    args += '-DGDBUS_CPP_BUILD_SHARED_LIBRARY'
+endif
+
+gdbuscpp = library('gdbus-c++', src,
+                    version: meson.project_version(),
+                    soversion: 0,
+                    dependencies: deps,
+                    cpp_args: args,
+                    gnu_symbol_visibility: 'hidden')
+
+gdbuscpp_dep = declare_dependency(link_with: gdbuscpp,
+                                  include_directories: ['..'],
+                                  dependencies: deps)

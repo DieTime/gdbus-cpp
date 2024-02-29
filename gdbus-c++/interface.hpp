@@ -6,6 +6,8 @@
 #ifndef GDBUS_CPP_INTERFACE_HPP
 #define GDBUS_CPP_INTERFACE_HPP
 
+#include "common.hpp"
+
 #include <memory>
 #include <string>
 
@@ -14,7 +16,7 @@ namespace gdbus {
 class object;
 class connection;
 
-class interface
+class GDBUS_CPP_EXPORT_CLASS(interface)
 {
 public:
     explicit interface(gdbus::object *object = nullptr);

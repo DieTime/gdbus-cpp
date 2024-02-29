@@ -6,15 +6,16 @@
 #ifndef GDBUS_CPP_SERVICE_HPP
 #define GDBUS_CPP_SERVICE_HPP
 
+#include "common.hpp"
 #include "object.hpp"
 
+#include <gio/gio.h>
 #include <string>
 #include <vector>
-#include <gio/gio.h>
 
 namespace gdbus {
 
-class service
+class GDBUS_CPP_EXPORT_CLASS(service)
 {
 public:
     explicit service(std::string name) noexcept;

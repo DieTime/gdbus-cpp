@@ -6,11 +6,13 @@
 #ifndef GDBUS_CPP_ERROR_HPP
 #define GDBUS_CPP_ERROR_HPP
 
+#include "common.hpp"
+
 #include <stdexcept>
 
 namespace gdbus {
 
-class error: public std::runtime_error
+class GDBUS_CPP_EXPORT_CLASS(error): public std::runtime_error
 {
 public:
     error(std::string name, std::string message);

@@ -4,7 +4,7 @@
 */
 
 #include "connection.hpp"
-#include "constants.hpp"
+#include "common.hpp"
 #include "error.hpp"
 #include "interface.hpp"
 #include "object.hpp"

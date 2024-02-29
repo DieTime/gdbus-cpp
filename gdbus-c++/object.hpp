@@ -6,6 +6,8 @@
 #ifndef GDBUS_CPP_OBJECT_HPP
 #define GDBUS_CPP_OBJECT_HPP
 
+#include "common.hpp"
+
 #include <memory>
 #include <string>
 #include <vector>
@@ -15,7 +17,7 @@ namespace gdbus {
 class service;
 class interface;
 
-class object
+class GDBUS_CPP_EXPORT_CLASS(object)
 {
 public:
     explicit object(std::string path, gdbus::service *service = nullptr) noexcept;
