@@ -1,0 +1,47 @@
+name: Linux Build
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+
+    strategy:
+      fail-fast: false
+
+      matrix:
+        flavor: [debug, debugoptimized, release]
+        cxx: [g++, clang++]
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Update Repositories
+      run: sudo apt-get update -qq
+
+    - name: Setup Python
+      run: sudo apt-get install -qq -y python3 python3-pip
+
+    - name: Setup Ninja
+      run: sudo apt-get install -qq -y ninja-build
+
+    - name: Setup Meson
+      run: python3 -m pip install meson
+
+    - name: Setup GLib 2.0
+      run: sudo apt-get install -qq -y libglib2.0-dev
+
+    - name: Meson Configure
+      run: |
+        CXX=${{ matrix.cxx }} meson setup builddir \
+          --fatal-meson-warnings \
+          --werror \
+          --buildtype ${{ matrix.flavor }}
+
+    - name: Meson Build
+      run: meson compile -C builddir
