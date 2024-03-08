@@ -18,7 +18,7 @@ struct deleter
 template<>
 struct deleter<GError>
 {
-    void operator()(GError *error)
+    void operator()(GError *error) noexcept
     {
         g_error_free(error);
     }
@@ -27,7 +27,7 @@ struct deleter<GError>
 template<>
 struct deleter<GDBusConnection>
 {
-    void operator()(GDBusConnection *connection)
+    void operator()(GDBusConnection *connection) noexcept
     {
         g_object_unref(connection);
     }
@@ -36,7 +36,7 @@ struct deleter<GDBusConnection>
 template<>
 struct deleter<GMainContext>
 {
-    void operator()(GMainContext *context)
+    void operator()(GMainContext *context) noexcept
     {
         g_main_context_unref(context);
     }
@@ -45,7 +45,7 @@ struct deleter<GMainContext>
 template<>
 struct deleter<GMainLoop>
 {
-    void operator()(GMainLoop *mainloop)
+    void operator()(GMainLoop *mainloop) noexcept
     {
         g_main_loop_unref(mainloop);
     }
@@ -54,7 +54,7 @@ struct deleter<GMainLoop>
 template<>
 struct deleter<GDBusNodeInfo>
 {
-    void operator()(GDBusNodeInfo *node)
+    void operator()(GDBusNodeInfo *node) noexcept
     {
         g_dbus_node_info_unref(node);
     }
