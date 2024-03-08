@@ -12,11 +12,11 @@
 namespace gdbus {
 
 template<typename T>
-struct freer
+struct deleter
 {};
 
 template<>
-struct freer<GError>
+struct deleter<GError>
 {
     void operator()(GError *error)
     {
@@ -25,7 +25,7 @@ struct freer<GError>
 };
 
 template<>
-struct freer<GDBusConnection>
+struct deleter<GDBusConnection>
 {
     void operator()(GDBusConnection *connection)
     {
@@ -34,7 +34,7 @@ struct freer<GDBusConnection>
 };
 
 template<>
-struct freer<GMainContext>
+struct deleter<GMainContext>
 {
     void operator()(GMainContext *context)
     {
@@ -43,7 +43,7 @@ struct freer<GMainContext>
 };
 
 template<>
-struct freer<GMainLoop>
+struct deleter<GMainLoop>
 {
     void operator()(GMainLoop *mainloop)
     {
@@ -52,7 +52,7 @@ struct freer<GMainLoop>
 };
 
 template<>
-struct freer<GDBusNodeInfo>
+struct deleter<GDBusNodeInfo>
 {
     void operator()(GDBusNodeInfo *node)
     {
@@ -88,7 +88,7 @@ struct pointer
     ~pointer()
     {
         if (m_pointer) {
-            gdbus::freer<T>()(m_pointer);
+            gdbus::deleter<T>()(m_pointer);
         }
     }
 
