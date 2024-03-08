@@ -68,7 +68,7 @@ struct pointer
     {}
 
     /* NOLINTNEXTLINE(google-explicit-constructor) */
-    pointer(T *pointer)
+    pointer(T *pointer) noexcept
         : m_pointer(pointer)
     {}
 
