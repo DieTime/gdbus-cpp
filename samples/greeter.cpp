@@ -40,7 +40,7 @@ private:
     std::string m_introspection;
 };
 
-}
+} /* namespace org::example */
 
 int main()
 {
