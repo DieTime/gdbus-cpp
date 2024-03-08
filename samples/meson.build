@@ -1,12 +1,4 @@
 # SPDX-FileCopyrightText: Copyright 2024 Denis Glazkov <glazzk.off@mail.ru>
 # SPDX-License-Identifier: Apache-2.0
 
-deps = [
-    gdbuscpp_dep,
-]
-
-src = [
-    'main.cpp'
-]
-
-executable('example', src, dependencies: deps)
+executable('greeter', 'greeter.cpp', dependencies: gdbuscpp_dep)

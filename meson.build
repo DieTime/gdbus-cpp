@@ -10,5 +10,5 @@ subdir('options')
 subdir('gdbus-c++')
 
 if GDBUS_CPP_BUILD_EXAMPLE
-    subdir('example')
+    subdir('samples')
 endif

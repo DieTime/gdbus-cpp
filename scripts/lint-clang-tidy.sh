@@ -9,7 +9,7 @@ SCRIPT_PATH=$(readlink -f "$0")
 SCRIPT_ROOT=$(dirname "$SCRIPT_PATH")
 PROJECT_ROOT=$(dirname "$SCRIPT_ROOT")
 SOURCES_ROOT="$PROJECT_ROOT/gdbus-c++"
-EXAMPLE_ROOT="$PROJECT_ROOT/example"
+SAMPLES_ROOT="$PROJECT_ROOT/samples"
 BUILD_ROOT="$PROJECT_ROOT/builddir"
 
 if [ -d "$BUILD_ROOT" ]; then
@@ -22,4 +22,4 @@ meson setup \
     "$BUILD_ROOT" \
     "$PROJECT_ROOT"
 
-clang-tidy-15 -p "$BUILD_ROOT" $(find "$SOURCES_ROOT" "$EXAMPLE_ROOT" -regex '.+\.[hc]pp')
+clang-tidy-15 -p "$BUILD_ROOT" $(find "$SOURCES_ROOT" "$SAMPLES_ROOT" -regex '.+\.[hc]pp')
