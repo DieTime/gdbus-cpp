@@ -5,6 +5,7 @@
 
 #include "connection.hpp"
 #include "common.hpp"
+#include "debugger.hpp"
 #include "error.hpp"
 #include "interface.hpp"
 #include "object.hpp"
@@ -36,20 +37,40 @@ void on_dbus_name_lost(GDBusConnection *, const char *name, gpointer userdata)
 {
     gdbus::connection *connection = static_cast<gdbus::connection *>(userdata);
 
+    gdbus::debugger() << "DBus name lost"
+                      << "\n   - Bus:  '" << bus_type_to_string(connection->type()) << "'"
+                      << "\n   - Name: '" << name << "'";
+
     throw gdbus::error(GDBUS_CPP_ERROR_NAME,
                        "Lost '" + std::string(name) + "' name on "
                            + bus_type_to_string(connection->type()) + " bus connection");
 }
 
+void on_dbus_name_acquired(GDBusConnection *, const char *name, gpointer userdata)
+{
+    gdbus::connection *connection = static_cast<gdbus::connection *>(userdata);
+
+    gdbus::debugger() << "DBus name acquired"
+                      << "\n   - Bus:  '" << bus_type_to_string(connection->type()) << "'"
+                      << "\n   - Name: '" << name << "'";
+}
+
 void process_method_call(GDBusConnection *,
-                         const char *,
-                         const char *,
+                         const char *sender,
+                         const char *object_path,
                          const char *interface_name,
-                         const char *,
-                         GVariant *,
+                         const char *method_name,
+                         GVariant *parameters,
                          GDBusMethodInvocation *invocation,
                          gpointer userdata)
 {
+    gdbus::debugger() << "Method call request"
+                      << "\n   - Sender:     '" << sender << "'"
+                      << "\n   - Object:     '" << object_path << "'"
+                      << "\n   - Interface:  '" << interface_name << "'"
+                      << "\n   - Method:     '" << method_name << "'"
+                      << "\n   - Parameters: " << std::string(g_variant_print(parameters, true));
+
     gdbus::interface *interface = static_cast<gdbus::interface *>(userdata);
 
     if (interface->name() != interface_name) {
@@ -61,26 +82,38 @@ void process_method_call(GDBusConnection *,
 }
 
 GVariant *process_get_property(GDBusConnection *,
-                               const char *,
-                               const char *,
-                               const char *,
-                               const char *,
+                               const char *sender,
+                               const char *object_path,
+                               const char *interface_name,
+                               const char *property_name,
                                GError **error,
                                gpointer)
 {
+    gdbus::debugger() << "Get property request"
+                      << "\n  - Sender:    '" << sender << "'"
+                      << "\n  - Object:    '" << object_path << "'"
+                      << "\n  - Interface: '" << interface_name << "'"
+                      << "\n  - Property:  '" << property_name << "'";
+
     g_dbus_error_set_dbus_error(error, GDBUS_CPP_ERROR_NAME, "Unimplemented", nullptr);
     return nullptr;
 }
 
 gboolean process_set_property(GDBusConnection *,
-                              const char *,
-                              const char *,
-                              const char *,
-                              const char *,
+                              const char *sender,
+                              const char *object_path,
+                              const char *interface_name,
+                              const char *property_name,
                               GVariant *,
                               GError **error,
                               gpointer)
 {
+    gdbus::debugger() << "Set property request"
+                      << "\n  - Sender:    '" << sender << "'"
+                      << "\n  - Object:    '" << object_path << "'"
+                      << "\n  - Interface: '" << interface_name << "'"
+                      << "\n  - Property:  '" << property_name << "'";
+
     g_dbus_error_set_dbus_error(error, GDBUS_CPP_ERROR_NAME, "Unimplemented", nullptr);
     return FALSE;
 }
@@ -162,7 +195,7 @@ void connection::register_name(const std::string &name)
     guint name_registration = g_bus_own_name_on_connection(m_connection,
                                                            name.c_str(),
                                                            G_BUS_NAME_OWNER_FLAGS_NONE,
-                                                           nullptr,
+                                                           on_dbus_name_acquired,
                                                            on_dbus_name_lost,
                                                            this,
                                                            nullptr);
