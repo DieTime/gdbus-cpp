@@ -17,6 +17,7 @@ struct Greeter: public gdbus::interface
     <interface name="org.example.Greeter">
         <method name="Greeting">
             <annotation name="org.freedesktop.DBus.Method.Async" value="server"/>
+            <arg name="name" type="s" direction="in"/>
             <arg name="greeting" type="s" direction="out"/>
         </method>
     </interface>
