@@ -51,7 +51,8 @@ jobs:
           --fatal-meson-warnings \
           --werror \
           --buildtype ${{ matrix.flavor }} \
-          --default-library ${{ matrix.library }}
+          --default-library ${{ matrix.library }} \
+          -DGDBUS_CPP_ENABLE_DEBUG_LOGGING=true
 
     - name: Meson build
       run: meson compile -C builddir
