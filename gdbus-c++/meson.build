@@ -19,6 +19,10 @@ if GDBUS_CPP_BUILD_SHARED_LIBRARY
     args += '-DGDBUS_CPP_BUILD_SHARED_LIBRARY'
 endif
 
+if GDBUS_CPP_ENABLE_DEBUG_LOGGING
+    args += '-DGDBUS_CPP_ENABLE_DEBUG_LOGGING'
+endif
+
 gdbuscpp = library('gdbus-c++', src,
                     version: meson.project_version(),
                     soversion: 0,
