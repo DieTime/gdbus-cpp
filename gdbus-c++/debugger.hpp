@@ -24,7 +24,7 @@ public:
 #endif
 
     template<typename T>
-    debugger &operator<<(T &&message)
+    debugger &operator<<([[maybe_unused]] T &&message)
     {
 #ifdef GDBUS_CPP_ENABLE_DEBUG_LOGGING
         m_buffer << std::forward<T>(message);
