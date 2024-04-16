@@ -12,51 +12,78 @@
 namespace gdbus {
 
 template<typename T>
-struct deleter
+struct pointer_cleanuper
 {};
 
 template<>
-struct deleter<GError>
+struct pointer_cleanuper<GError>
 {
-    void operator()(GError *error) noexcept
+    static void cleanup(GError *error) noexcept
     {
         g_error_free(error);
     }
 };
 
 template<>
-struct deleter<GDBusConnection>
+struct pointer_cleanuper<GDBusConnection>
 {
-    void operator()(GDBusConnection *connection) noexcept
+    static void cleanup(GDBusConnection *connection) noexcept
     {
         g_object_unref(connection);
     }
 };
 
 template<>
-struct deleter<GMainContext>
+struct pointer_cleanuper<GMainContext>
 {
-    void operator()(GMainContext *context) noexcept
+    static void cleanup(GMainContext *context) noexcept
     {
         g_main_context_unref(context);
     }
 };
 
 template<>
-struct deleter<GMainLoop>
+struct pointer_cleanuper<GMainLoop>
 {
-    void operator()(GMainLoop *mainloop) noexcept
+    static void cleanup(GMainLoop *main_loop) noexcept
     {
-        g_main_loop_unref(mainloop);
+        g_main_loop_unref(main_loop);
     }
 };
 
 template<>
-struct deleter<GDBusNodeInfo>
+struct pointer_cleanuper<GDBusNodeInfo>
 {
-    void operator()(GDBusNodeInfo *node) noexcept
+    static void cleanup(GDBusNodeInfo *node) noexcept
     {
         g_dbus_node_info_unref(node);
+    }
+};
+
+template<>
+struct pointer_cleanuper<GVariant>
+{
+    static void cleanup(GVariant *variant) noexcept
+    {
+        g_variant_unref(variant);
+    }
+};
+
+template<>
+struct pointer_cleanuper<GVariantIter>
+{
+    static void cleanup(GVariantIter *iterator) noexcept
+    {
+        g_variant_iter_free(iterator);
+    }
+};
+
+template<>
+struct pointer_cleanuper<GVariantBuilder>
+{
+    static void cleanup(GVariantBuilder *builder) noexcept
+    {
+        g_variant_builder_unref(builder);
     }
 };
 
@@ -78,7 +105,11 @@ struct pointer
 
     pointer &operator=(pointer &&other) noexcept
     {
-        m_pointer = std::exchange(other.m_pointer, nullptr);
+        if (this != std::addressof(other)) {
+            cleanup();
+            m_pointer = std::exchange(other.m_pointer, nullptr);
+        }
+
         return *this;
     }
 
@@ -87,39 +118,37 @@ struct pointer
 
     ~pointer()
     {
-        if (m_pointer) {
-            gdbus::deleter<T>()(m_pointer);
-        }
+        cleanup();
     }
 
     /* NOLINTNEXTLINE(google-explicit-constructor) */
-    constexpr operator T *() noexcept
+    operator T *() noexcept
     {
         return m_pointer;
     }
 
     /* NOLINTNEXTLINE(google-explicit-constructor) */
-    constexpr operator const T *() const noexcept
+    operator const T *() const noexcept
     {
         return m_pointer;
     }
 
-    constexpr T *operator->() noexcept
+    T *operator->() noexcept
     {
         return m_pointer;
     }
 
-    constexpr const T *operator->() const noexcept
+    const T *operator->() const noexcept
     {
         return m_pointer;
     }
 
-    constexpr T **operator&() noexcept
+    T **operator&() noexcept
     {
         return &m_pointer;
     }
 
-    constexpr const T **operator&() const noexcept
+    const T **operator&() const noexcept
     {
         return &m_pointer;
     }
@@ -130,9 +159,16 @@ struct pointer
     }
 
 private:
+    void cleanup() noexcept
+    {
+        if (m_pointer) {
+            pointer_cleanuper<T>::cleanup(std::exchange(m_pointer, nullptr));
+        }
+    }
+
     T *m_pointer;
 };
 
 } /* namespace gdbus */
 
-#endif //GDBUS_CPP_POINTER_HPP
+#endif /* GDBUS_CPP_POINTER_HPP */
