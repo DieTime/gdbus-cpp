@@ -4,7 +4,7 @@
 */
 
 #include "service.hpp"
-#include "connection.hpp"
+#include "details/connection.hpp"
 
 namespace gdbus {
 
@@ -48,7 +48,7 @@ service &service::with_objects(std::vector<gdbus::object> &&objects) noexcept
 
 void service::start()
 {
-    gdbus::connection connection = gdbus::connection::for_bus_with_type(m_bus_type);
+    details::connection connection = details::connection::for_bus_with_type(m_bus_type);
 
     connection.register_name(m_name);
     connection.register_objects(m_objects);

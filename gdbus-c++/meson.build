@@ -6,7 +6,7 @@ deps = [
 ]
 
 src = [
-    'connection.cpp',
+    'details/connection.cpp',
     'error.cpp',
     'interface.cpp',
     'object.cpp',
@@ -19,8 +19,8 @@ if GDBUS_CPP_BUILD_SHARED_LIBRARY
     args += '-DGDBUS_CPP_BUILD_SHARED_LIBRARY'
 endif
 
-if GDBUS_CPP_ENABLE_DEBUG_LOGGING
-    args += '-DGDBUS_CPP_ENABLE_DEBUG_LOGGING'
+if GDBUS_CPP_BUILD_WITH_DEBUG_LOGGING
+    args += '-DGDBUS_CPP_BUILD_WITH_DEBUG_LOGGING'
 endif
 
 gdbuscpp = library('gdbus-c++', src,

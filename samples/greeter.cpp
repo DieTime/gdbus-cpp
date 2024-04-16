@@ -35,6 +35,15 @@ struct Greeter: public gdbus::interface
         return m_introspection;
     }
 
+    void on_method_call_request(const gdbus::method_call_request &) override
+    {}
+
+    void on_get_property_request(const gdbus::get_property_request &) override
+    {}
+
+    void on_set_property_request(const gdbus::set_property_request &) override
+    {}
+
 private:
     std::string m_name;
     std::string m_introspection;
@@ -53,7 +62,8 @@ int main()
                 }),
             })
             .start();
-    } catch (const gdbus::error &error) {
+    }
+    catch (const gdbus::error &error) {
         std::cout << error.message() << "\n";
         return EXIT_FAILURE;
     }

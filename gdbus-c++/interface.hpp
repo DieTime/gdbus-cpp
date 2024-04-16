@@ -7,14 +7,29 @@
 #define GDBUS_CPP_INTERFACE_HPP
 
 #include "common.hpp"
+#include "variant.hpp"
 
 #include <memory>
 #include <string>
 
+namespace gdbus::details {
+
+class connection;
+
+} /* namespace gdbus::details */
+
 namespace gdbus {
 
 class object;
-class connection;
+
+struct method_call_request
+{};
+
+struct get_property_request
+{};
+
+struct set_property_request
+{};
 
 class GDBUS_CPP_EXPORT_CLASS(interface)
 {
@@ -25,8 +40,12 @@ public:
     virtual const std::string &name() const noexcept = 0;
     virtual const std::string &introspection() const noexcept = 0;
 
+    virtual void on_method_call_request(const method_call_request &) = 0;
+    virtual void on_get_property_request(const get_property_request &) = 0;
+    virtual void on_set_property_request(const set_property_request &) = 0;
+
 private:
-    friend class gdbus::connection;
+    friend class gdbus::details::connection;
     const gdbus::object *object() const noexcept;
 
     friend class gdbus::object;

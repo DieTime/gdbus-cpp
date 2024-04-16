@@ -3,4 +3,5 @@
 
 set_variable('GDBUS_CPP_BUILD_SHARED_LIBRARY', get_option('default_library') != 'static')
 set_variable('GDBUS_CPP_BUILD_EXAMPLE', get_option('GDBUS_CPP_BUILD_EXAMPLE'))
-set_variable('GDBUS_CPP_ENABLE_DEBUG_LOGGING', get_option('GDBUS_CPP_ENABLE_DEBUG_LOGGING'))
+set_variable('GDBUS_CPP_BUILD_TESTS', get_option('GDBUS_CPP_BUILD_TESTS'))
+set_variable('GDBUS_CPP_BUILD_WITH_DEBUG_LOGGING', get_option('GDBUS_CPP_BUILD_WITH_DEBUG_LOGGING'))

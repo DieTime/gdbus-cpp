@@ -2,4 +2,5 @@
 # SPDX-License-Identifier: Apache-2.0
 
 option('GDBUS_CPP_BUILD_EXAMPLE', type: 'boolean', value: true)
-option('GDBUS_CPP_ENABLE_DEBUG_LOGGING', type: 'boolean', value: false)
+option('GDBUS_CPP_BUILD_TESTS', type: 'boolean', value: true)
+option('GDBUS_CPP_BUILD_WITH_DEBUG_LOGGING', type: 'boolean', value: true)

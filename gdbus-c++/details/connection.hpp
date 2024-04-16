@@ -3,8 +3,8 @@
 * SPDX-License-Identifier: Apache-2.0
 */
 
-#ifndef GDBUS_CPP_CONNECTION_HPP
-#define GDBUS_CPP_CONNECTION_HPP
+#ifndef GDBUS_CPP_CONNECTION_CONNECTION_HPP
+#define GDBUS_CPP_CONNECTION_CONNECTION_HPP
 
 #include "pointer.hpp"
 
@@ -16,6 +16,10 @@ namespace gdbus {
 
 class object;
 class interface;
+
+} /* namespace gdbus */
+
+namespace gdbus::details {
 
 class connection
 {
@@ -33,23 +37,23 @@ public:
 
 private:
     connection(GBusType type,
-               gdbus::pointer<GDBusConnection> connection,
-               gdbus::pointer<GMainContext> context,
-               gdbus::pointer<GMainLoop> mainloop) noexcept;
+               pointer<GDBusConnection> connection,
+               pointer<GMainContext> context,
+               pointer<GMainLoop> mainloop) noexcept;
 
     void register_object(const gdbus::object &object);
     void register_object_interface(const std::shared_ptr<gdbus::interface> &interface);
 
 private:
     GBusType m_type;
-    gdbus::pointer<GDBusConnection> m_connection;
-    gdbus::pointer<GMainContext> m_context;
-    gdbus::pointer<GMainLoop> m_mainloop;
+    pointer<GDBusConnection> m_connection;
+    pointer<GMainContext> m_context;
+    pointer<GMainLoop> m_mainloop;
     guint m_name_registration;
     std::vector<guint> m_object_registrations;
-    std::vector<gdbus::pointer<GDBusNodeInfo>> m_nodes;
+    std::vector<pointer<GDBusNodeInfo>> m_nodes;
 };
 
-} /* namespace gdbus */
+} /* namespace gdbus::details */
 
-#endif /* GDBUS_CPP_CONNECTION_HPP */
+#endif /* GDBUS_CPP_CONNECTION_CONNECTION_HPP */

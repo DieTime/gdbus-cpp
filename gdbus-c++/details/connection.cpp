@@ -4,11 +4,13 @@
 */
 
 #include "connection.hpp"
-#include "common.hpp"
 #include "debugger.hpp"
-#include "error.hpp"
-#include "interface.hpp"
-#include "object.hpp"
+
+#include "../common.hpp"
+#include "../error.hpp"
+#include "../interface.hpp"
+#include "../object.hpp"
+#include "../variant.hpp"
 
 namespace {
 
@@ -33,13 +35,26 @@ std::string append_g_error(const std::string &message, GError *error) noexcept
     return message;
 }
 
+std::string dbus_arguments_to_string(GVariant *arguments)
+{
+    char *variant_as_string = g_variant_print(arguments, true);
+
+    if (!variant_as_string) {
+        return {};
+    }
+
+    std::string result = variant_as_string;
+    g_free(variant_as_string);
+
+    return result;
+}
+
 void on_dbus_name_lost(GDBusConnection *, const char *name, gpointer userdata)
 {
-    gdbus::connection *connection = static_cast<gdbus::connection *>(userdata);
-
-    gdbus::debugger() << "DBus name lost"
-                      << "\n   - Bus:  '" << bus_type_to_string(connection->type()) << "'"
-                      << "\n   - Name: '" << name << "'";
+    gdbus::details::connection *connection = static_cast<gdbus::details::connection *>(userdata);
+    gdbus::details::debugger() << "DBus name lost"
+                               << "\n   - Bus:  '" << bus_type_to_string(connection->type()) << "'"
+                               << "\n   - Name: '" << name << "'";
 
     throw gdbus::error(GDBUS_CPP_ERROR_NAME,
                        "Lost '" + std::string(name) + "' name on "
@@ -48,11 +63,10 @@ void on_dbus_name_lost(GDBusConnection *, const char *name, gpointer userdata)
 
 void on_dbus_name_acquired(GDBusConnection *, const char *name, gpointer userdata)
 {
-    gdbus::connection *connection = static_cast<gdbus::connection *>(userdata);
-
-    gdbus::debugger() << "DBus name acquired"
-                      << "\n   - Bus:  '" << bus_type_to_string(connection->type()) << "'"
-                      << "\n   - Name: '" << name << "'";
+    gdbus::details::connection *connection = static_cast<gdbus::details::connection *>(userdata);
+    gdbus::details::debugger() << "DBus name acquired"
+                               << "\n   - Bus:  '" << bus_type_to_string(connection->type()) << "'"
+                               << "\n   - Name: '" << name << "'";
 }
 
 void process_method_call(GDBusConnection *,
@@ -60,23 +74,16 @@ void process_method_call(GDBusConnection *,
                          const char *object_path,
                          const char *interface_name,
                          const char *method_name,
-                         GVariant *parameters,
+                         GVariant *arguments,
                          GDBusMethodInvocation *invocation,
-                         gpointer userdata)
+                         gpointer)
 {
-    gdbus::debugger() << "Method call request"
-                      << "\n   - Sender:     '" << sender << "'"
-                      << "\n   - Object:     '" << object_path << "'"
-                      << "\n   - Interface:  '" << interface_name << "'"
-                      << "\n   - Method:     '" << method_name << "'"
-                      << "\n   - Parameters: " << std::string(g_variant_print(parameters, true));
-
-    gdbus::interface *interface = static_cast<gdbus::interface *>(userdata);
-
-    if (interface->name() != interface_name) {
-        g_dbus_method_invocation_return_dbus_error(invocation, GDBUS_CPP_ERROR_NAME, "Unsupported");
-        return;
-    }
+    gdbus::details::debugger() << "Method call request"
+                               << "\n   - Sender:     '" << sender << "'"
+                               << "\n   - Object:     '" << object_path << "'"
+                               << "\n   - Interface:  '" << interface_name << "'"
+                               << "\n   - Method:     '" << method_name << "'"
+                               << "\n   - Parameters: " << dbus_arguments_to_string(arguments);
 
     g_dbus_method_invocation_return_dbus_error(invocation, GDBUS_CPP_ERROR_NAME, "Unimplemented");
 }
@@ -89,11 +96,11 @@ GVariant *process_get_property(GDBusConnection *,
                                GError **error,
                                gpointer)
 {
-    gdbus::debugger() << "Get property request"
-                      << "\n  - Sender:    '" << sender << "'"
-                      << "\n  - Object:    '" << object_path << "'"
-                      << "\n  - Interface: '" << interface_name << "'"
-                      << "\n  - Property:  '" << property_name << "'";
+    gdbus::details::debugger() << "Get property request"
+                               << "\n   - Sender:    '" << sender << "'"
+                               << "\n   - Object:    '" << object_path << "'"
+                               << "\n   - Interface: '" << interface_name << "'"
+                               << "\n   - Property:  '" << property_name << "'";
 
     g_dbus_error_set_dbus_error(error, GDBUS_CPP_ERROR_NAME, "Unimplemented", nullptr);
     return nullptr;
@@ -108,11 +115,11 @@ gboolean process_set_property(GDBusConnection *,
                               GError **error,
                               gpointer)
 {
-    gdbus::debugger() << "Set property request"
-                      << "\n  - Sender:    '" << sender << "'"
-                      << "\n  - Object:    '" << object_path << "'"
-                      << "\n  - Interface: '" << interface_name << "'"
-                      << "\n  - Property:  '" << property_name << "'";
+    gdbus::details::debugger() << "Set property request"
+                               << "\n   - Sender:    '" << sender << "'"
+                               << "\n   - Object:    '" << object_path << "'"
+                               << "\n   - Interface: '" << interface_name << "'"
+                               << "\n   - Property:  '" << property_name << "'";
 
     g_dbus_error_set_dbus_error(error, GDBUS_CPP_ERROR_NAME, "Unimplemented", nullptr);
     return FALSE;
@@ -127,12 +134,12 @@ const GDBusInterfaceVTable vtable = {
 
 } /* namespace */
 
-namespace gdbus {
+namespace gdbus::details {
 
 connection connection::for_bus_with_type(GBusType type)
 {
-    gdbus::pointer<GError> error;
-    gdbus::pointer<GDBusConnection> connection = g_bus_get_sync(type, nullptr, &error);
+    pointer<GError> error;
+    pointer<GDBusConnection> connection = g_bus_get_sync(type, nullptr, &error);
 
     if (!connection) {
         throw gdbus::error(GDBUS_CPP_ERROR_NAME,
@@ -141,7 +148,7 @@ connection connection::for_bus_with_type(GBusType type)
                                           error));
     }
 
-    gdbus::pointer<GMainContext> context = g_main_context_new();
+    pointer<GMainContext> context = g_main_context_new();
 
     if (!context) {
         throw gdbus::error(GDBUS_CPP_ERROR_NAME,
@@ -149,7 +156,7 @@ connection connection::for_bus_with_type(GBusType type)
                                + " bus connection");
     }
 
-    gdbus::pointer<GMainLoop> mainloop = g_main_loop_new(context, false);
+    pointer<GMainLoop> mainloop = g_main_loop_new(context, false);
 
     if (!mainloop) {
         throw gdbus::error(GDBUS_CPP_ERROR_NAME,
@@ -161,9 +168,9 @@ connection connection::for_bus_with_type(GBusType type)
 }
 
 connection::connection(GBusType type,
-                       gdbus::pointer<GDBusConnection> connection,
-                       gdbus::pointer<GMainContext> context,
-                       gdbus::pointer<GMainLoop> mainloop) noexcept
+                       pointer<GDBusConnection> connection,
+                       pointer<GMainContext> context,
+                       pointer<GMainLoop> mainloop) noexcept
     : m_type(type)
     , m_connection(std::move(connection))
     , m_context(std::move(context))
@@ -236,10 +243,9 @@ void connection::register_object(const gdbus::object &object)
 
 void connection::register_object_interface(const std::shared_ptr<gdbus::interface> &interface)
 {
-    const std::string &introspection = interface->introspection();
-
-    gdbus::pointer<GError> error;
-    gdbus::pointer<GDBusNodeInfo> node = g_dbus_node_info_new_for_xml(introspection.c_str(), &error);
+    pointer<GError> error;
+    pointer<GDBusNodeInfo> node = g_dbus_node_info_new_for_xml(interface->introspection().c_str(),
+                                                               &error);
 
     if (!node) {
         throw gdbus::error(GDBUS_CPP_ERROR_NAME,
@@ -265,6 +271,10 @@ void connection::register_object_interface(const std::shared_ptr<gdbus::interfac
 
     m_object_registrations.push_back(id);
     m_nodes.push_back(std::move(node));
+
+    debugger() << "DBus interface registered"
+               << "\n   - Name:   '" << interface->name() << "'"
+               << "\n   - Object: '" << interface->object()->path() << "'";
 }
 
-} /* namespace gdbus */
+} /* namespace gdbus::details */
