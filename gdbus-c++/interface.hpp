@@ -19,7 +19,7 @@ class connection;
 class GDBUS_CPP_EXPORT_CLASS(interface)
 {
 public:
-    explicit interface(gdbus::object *object = nullptr);
+    explicit interface(gdbus::object *object = nullptr) noexcept;
     virtual ~interface() = default;
 
     virtual const std::string &name() const noexcept = 0;

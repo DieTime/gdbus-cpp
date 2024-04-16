@@ -7,7 +7,7 @@
 
 namespace gdbus {
 
-interface::interface(gdbus::object *object)
+interface::interface(gdbus::object *object) noexcept
     : m_object(object)
 {}
 
