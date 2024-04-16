@@ -12,7 +12,7 @@ struct Greeter: public gdbus::interface
 {
     Greeter()
         : m_name("org.example.Greeter")
-        , m_introspection(R"gdbuscpp(
+        , m_introspection(R"xml(
 <node>
     <interface name="org.example.Greeter">
         <method name="Greeting">
@@ -22,7 +22,7 @@ struct Greeter: public gdbus::interface
         </method>
     </interface>
 </node>
-)gdbuscpp")
+)xml")
     {}
 
     const std::string &name() const noexcept override
