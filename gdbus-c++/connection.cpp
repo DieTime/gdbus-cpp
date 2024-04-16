@@ -76,7 +76,7 @@ void process_method_call(GDBusConnection *,
                          const char *method_name,
                          GVariant *arguments,
                          GDBusMethodInvocation *invocation,
-                         gpointer userdata)
+                         gpointer)
 {
     gdbus::debugger() << "Method call request"
                       << "\n   - Sender:     '" << sender << "'"
