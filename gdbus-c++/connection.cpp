@@ -12,7 +12,7 @@
 
 namespace {
 
-std::string bus_type_to_string(GBusType bus_type) noexcept
+std::string bus_type_to_string(GBusType bus_type)
 {
     switch (bus_type) {
     case G_BUS_TYPE_SESSION:
@@ -24,7 +24,7 @@ std::string bus_type_to_string(GBusType bus_type) noexcept
     }
 }
 
-std::string append_g_error(const std::string &message, GError *error) noexcept
+std::string append_g_error(const std::string &message, GError *error)
 {
     if (error) {
         return message + " " + error->message;
