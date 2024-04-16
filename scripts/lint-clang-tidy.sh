@@ -16,10 +16,6 @@ if [ -d "$BUILD_ROOT" ]; then
     rm -rf "$BUILD_ROOT"
 fi
 
-meson setup \
-    -DGDBUS_CPP_BUILD_EXAMPLE=true \
-    -DGDBUS_CPP_ENABLE_DEBUG_LOGGING=true \
-    "$BUILD_ROOT" \
-    "$PROJECT_ROOT"
+meson setup "$BUILD_ROOT" "$PROJECT_ROOT"
 
 clang-tidy-15 -p "$BUILD_ROOT" $(find "$SOURCES_ROOT" "$SAMPLES_ROOT" -regex '.+\.[hc]pp')

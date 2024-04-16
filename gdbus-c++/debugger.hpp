@@ -6,46 +6,64 @@
 #ifndef GDBUS_CPP_DEBUGGER_HPP
 #define GDBUS_CPP_DEBUGGER_HPP
 
+#ifdef GDBUS_CPP_BUILD_WITH_DEBUG_LOGGING
 #include <iostream>
 #include <sstream>
+#include <unistd.h>
+#endif
 
 namespace gdbus {
 
+#ifdef GDBUS_CPP_BUILD_WITH_DEBUG_LOGGING
 class debugger
 {
 public:
-#ifdef GDBUS_CPP_ENABLE_DEBUG_LOGGING
+    debugger()
+        : m_enabled(getenv("GDBUS_CPP_DEBUG") != nullptr)
+    {}
+
     ~debugger()
     {
-        if (buffer_size() > 0) {
-            std::cout << "[gdbuscpp] " << m_buffer.str() << "\n";
+        if (m_enabled && m_buffer.tellp() != std::streampos(0)) {
+            bool use_color = isatty(fileno(stdout)) && !getenv("GDBUS_CPP_DEBUG_NO_COLORS");
+
+            if (use_color) {
+                std::cout << "\033[0;90m";
+            }
+
+            std::cout << '\n' << "[gdbuscpp] " << m_buffer.str() << '\n';
+
+            if (use_color) {
+                std::cout << "\033[0m";
+            }
         }
     }
-#endif
 
     template<typename T>
-    debugger &operator<<([[maybe_unused]] T &&message)
+    debugger &operator<<(T &&message)
     {
-#ifdef GDBUS_CPP_ENABLE_DEBUG_LOGGING
-        m_buffer << std::forward<T>(message);
-#endif
+        if (m_enabled) {
+            m_buffer << std::forward<T>(message);
+        }
+
         return *this;
     }
 
 private:
-#ifdef GDBUS_CPP_ENABLE_DEBUG_LOGGING
-    std::streampos buffer_size()
-    {
-        m_buffer.seekg(0, std::ios::end);
-        std::streampos size = m_buffer.tellg();
-
-        m_buffer.seekg(0, std::ios::beg);
-        return size;
-    }
-
+    bool m_enabled;
     std::stringstream m_buffer;
-#endif
 };
+#else
+class debugger
+{
+public:
+    template<typename T>
+    debugger &operator<<(T &&)
+    {
+        return *this;
+    }
+};
+#endif
 
 } /* namespace gdbus */
 
