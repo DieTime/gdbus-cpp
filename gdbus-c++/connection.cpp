@@ -33,6 +33,20 @@ std::string append_g_error(const std::string &message, GError *error) noexcept
     return message;
 }
 
+std::string dbus_arguments_to_string(GVariant *arguments)
+{
+    char *variant_as_string = g_variant_print(arguments, true);
+
+    if (!variant_as_string) {
+        return {};
+    }
+
+    std::string result = variant_as_string;
+    g_free(variant_as_string);
+
+    return result;
+}
+
 void on_dbus_name_lost(GDBusConnection *, const char *name, gpointer userdata)
 {
     gdbus::connection *connection = static_cast<gdbus::connection *>(userdata);
@@ -60,7 +74,7 @@ void process_method_call(GDBusConnection *,
                          const char *object_path,
                          const char *interface_name,
                          const char *method_name,
-                         GVariant *parameters,
+                         GVariant *arguments,
                          GDBusMethodInvocation *invocation,
                          gpointer userdata)
 {
@@ -69,14 +83,7 @@ void process_method_call(GDBusConnection *,
                       << "\n   - Object:     '" << object_path << "'"
                       << "\n   - Interface:  '" << interface_name << "'"
                       << "\n   - Method:     '" << method_name << "'"
-                      << "\n   - Parameters: " << std::string(g_variant_print(parameters, true));
-
-    gdbus::interface *interface = static_cast<gdbus::interface *>(userdata);
-
-    if (interface->name() != interface_name) {
-        g_dbus_method_invocation_return_dbus_error(invocation, GDBUS_CPP_ERROR_NAME, "Unsupported");
-        return;
-    }
+                      << "\n   - Arguments: " << dbus_arguments_to_string(arguments);
 
     g_dbus_method_invocation_return_dbus_error(invocation, GDBUS_CPP_ERROR_NAME, "Unimplemented");
 }
@@ -90,10 +97,10 @@ GVariant *process_get_property(GDBusConnection *,
                                gpointer)
 {
     gdbus::debugger() << "Get property request"
-                      << "\n  - Sender:    '" << sender << "'"
-                      << "\n  - Object:    '" << object_path << "'"
-                      << "\n  - Interface: '" << interface_name << "'"
-                      << "\n  - Property:  '" << property_name << "'";
+                      << "\n   - Sender:    '" << sender << "'"
+                      << "\n   - Object:    '" << object_path << "'"
+                      << "\n   - Interface: '" << interface_name << "'"
+                      << "\n   - Property:  '" << property_name << "'";
 
     g_dbus_error_set_dbus_error(error, GDBUS_CPP_ERROR_NAME, "Unimplemented", nullptr);
     return nullptr;
@@ -109,10 +116,10 @@ gboolean process_set_property(GDBusConnection *,
                               gpointer)
 {
     gdbus::debugger() << "Set property request"
-                      << "\n  - Sender:    '" << sender << "'"
-                      << "\n  - Object:    '" << object_path << "'"
-                      << "\n  - Interface: '" << interface_name << "'"
-                      << "\n  - Property:  '" << property_name << "'";
+                      << "\n   - Sender:    '" << sender << "'"
+                      << "\n   - Object:    '" << object_path << "'"
+                      << "\n   - Interface: '" << interface_name << "'"
+                      << "\n   - Property:  '" << property_name << "'";
 
     g_dbus_error_set_dbus_error(error, GDBUS_CPP_ERROR_NAME, "Unimplemented", nullptr);
     return FALSE;
